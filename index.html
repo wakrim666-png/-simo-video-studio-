@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Simo Video Studio</title>
+<style>
+body{background:#111;color:#fff;text-align:center;padding:20px;font-family:sans-serif}
+.box{border:2px dashed #444;padding:30px;border-radius:12px}
+video{width:100%;max-width:600px;margin-top:20px;display:none}
+button{background:#22c55e;padding:12px 20px;border:none;border-radius:8px;font-weight:bold}
+</style>
+</head>
+<body>
+<h1>Simo Video Studio v1</h1>
+<div class="box">
+<input type="file" id="u" accept="video/*" hidden>
+<button onclick="u.click()">اختر فيديو</button>
+<p id="s">لم يتم اختيار فيديو</p>
+</div>
+<video id="v" controls></video>
+<script>
+u=document.getElementById('u');v=document.getElementById('v');s=document.getElementById('s');
+u.onchange=e=>{f=e.target.files[0];if(f){v.src=URL.createObjectURL(f);v.style.display='block';s.innerText=f.name}}
+</script>
+</body>
+</html>
