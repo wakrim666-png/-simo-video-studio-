@@ -1,38 +1,338 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Simo Studio</title>
-<style>
-body{margin:0;background:#0a0a0a;color:#fff;font-family:sans-serif;text-align:center;padding:16px}
-h1{color:#22c55e}
-.box{background:#161616;border:1px solid #333;border-radius:14px;padding:16px;max-width:680px;margin:15px auto}
-video{width:100%;max-width:680px;border-radius:12px;background:#000;margin:12px auto;display:none}
-button{padding:12px 18px;border-radius:10px;border:0;font-weight:700;margin:6px}
-.g{background:#22c55e;color:#000}.r{background:#ef4444;color:#fff}.b{background:#3b82f6;color:#fff}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simo Video Studio</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      color: #111827;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 22px;
+      border-radius: 18px;
+      margin-bottom: 18px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+    }
+
+    header p {
+      margin: 0;
+      color: #d1d5db;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.06);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    textarea,
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #16a34a;
+      color: white;
+    }
+
+    button:hover {
+      opacity: .9;
+    }
+
+    .secondary {
+      background: #111827;
+    }
+
+    .scene {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 15px;
+      margin-top: 12px;
+      background: #fafafa;
+    }
+
+    .scene h3 {
+      margin-top: 0;
+    }
+
+    .upload {
+      border: 2px dashed #cbd5e1;
+      padding: 25px;
+      text-align: center;
+      border-radius: 15px;
+      margin-top: 10px;
+    }
+
+    #mediaPreview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    #mediaPreview img,
+    #mediaPreview video {
+      width: 100%;
+      border-radius: 12px;
+      max-height: 180px;
+      object-fit: cover;
+    }
+
+    .status {
+      padding: 12px;
+      border-radius: 10px;
+      background: #ecfdf5;
+      color: #166534;
+      margin-top: 12px;
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      color: #6b7280;
+      padding: 20px;
+    }
+  </style>
 </head>
+
 <body>
-<h1>🎬 Simo Video Studio</h1>
-<div class="box">
-<input type="file" id="file" accept="video/*"><br><br>
-<button class="g" onclick="openCam()">📷 فتح الكاميرا</button>
-<button class="r" id="rec" onclick="startRec()">🔴 تسجيل</button>
-<button class="r" id="stop" onclick="stopRec()" style="display:none">⏹️ إيقاف</button>
-<p id="msg"></p>
+
+<div class="app">
+
+  <header>
+    <h1>🎬 Simo Video Studio</h1>
+    <p>المساعد ديالك لصناعة الفيديو من الفكرة حتى المونتاج</p>
+  </header>
+
+  <div class="card">
+
+    <label>💡 شنو هي فكرة الفيديو؟</label>
+
+    <textarea
+      id="idea"
+      placeholder="مثلاً: بغيت ندير فيديو على شنو غادي نعلّم ولدي فالحياة..."
+    ></textarea>
+
+    <button onclick="createScript()">
+      ✨ صايب ليا السيناريو
+    </button>
+
+    <div id="status" class="status"></div>
+
+  </div>
+
+  <div class="card">
+
+    <h2>📝 السيناريو</h2>
+
+    <div id="script">
+      <p>كتب الفكرة ديالك، وسيمو غادي يحضر ليك الهيكل الأولي ديال السيناريو.</p>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <h2>🎞️ الوسائط</h2>
+
+    <p>دخل الصور والفيديوهات اللي بغيتي تستعمل فالمشروع.</p>
+
+    <div class="upload">
+
+      <input
+        type="file"
+        id="mediaInput"
+        accept="image/*,video/*"
+        multiple
+        onchange="previewMedia()"
+      >
+
+      <p>📱 اختار الصور أو الفيديوهات من الهاتف</p>
+
+    </div>
+
+    <div id="mediaPreview"></div>
+
+  </div>
+
+  <div class="card">
+
+    <h2>🎬 المشاهد</h2>
+
+    <div id="scenes">
+
+      <div class="scene">
+        <h3>المشهد 1</h3>
+        <p>غادي يبان هنا أول مشهد من السيناريو.</p>
+      </div>
+
+      <div class="scene">
+        <h3>المشهد 2</h3>
+        <p>غادي يبان هنا المشهد الثاني.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <h2>🎙️ الصوت</h2>
+
+    <p>المرحلة الجاية غادي نضيفو تسجيل صوتك وربطو بالمشاهد.</p>
+
+    <button class="secondary">
+      🎙️ تسجيل الصوت — قريباً
+    </button>
+
+  </div>
+
+  <div class="card">
+
+    <h2>🤖 المونتاج الذكي</h2>
+
+    <p>
+      الهدف النهائي: تقول لسيمو
+      <strong>«خرج ليا الفيديو»</strong>
+      وهو يرتب المشاهد والصور والصوت والموسيقى والكتابة والانتقالات.
+    </p>
+
+    <button class="secondary">
+      🎬 خرج ليا الفيديو — قريباً
+    </button>
+
+  </div>
+
+  <footer>
+    Simo Video Studio © 2026
+  </footer>
+
 </div>
-<video id="cam" autoplay muted playsinline></video>
-<video id="pre" controls></video>
-<div class="box"><button class="b" onclick="dl()">⬇️ تحميل الفيديو</button></div>
+
 <script>
-let st, rec, ch=[], blob;
-const cam=document.getElementById('cam'), pre=document.getElementById('pre'), msg=document.getElementById('msg');
-async function openCam(){st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});cam.srcObject=st;cam.style.display='block';msg.textContent='✅ الكاميرا خدامة'}
-function startRec(){if(!st)return alert('حل الكاميرا الأول');ch=[];rec=new MediaRecorder(st);rec.ondataavailable=e=>ch.push(e.data);rec.onstop=()=>{blob=new Blob(ch,{type:'video/webm'});pre.src=URL.createObjectURL(blob);pre.style.display='block';msg.textContent='✅ تسجل'};rec.start();document.getElementById('rec').style.display='none';document.getElementById('stop').style.display='inline-block';msg.textContent='🔴 كيسجل...'}
-function stopRec(){rec.stop();document.getElementById('rec').style.display='inline-block';document.getElementById('stop').style.display='none';}
-document.getElementById('file').onchange=e=>{blob=e.target.files[0];pre.src=URL.createObjectURL(blob);pre.style.display='block';msg.textContent='✅ فيديو محمل'}
-function dl(){let a=document.createElement('a');a.href=pre.src;a.download='simo-'+Date.now()+'.webm';a.click()}
+
+function createScript() {
+
+  const idea = document.getElementById("idea").value.trim();
+  const script = document.getElementById("script");
+  const status = document.getElementById("status");
+
+  if (!idea) {
+    alert("كتب ليا فكرة الفيديو الأول.");
+    return;
+  }
+
+  script.innerHTML = `
+    <div class="scene">
+      <h3>🎬 البداية</h3>
+      <p>
+        ${idea}
+      </p>
+    </div>
+
+    <div class="scene">
+      <h3>🎯 الفكرة الرئيسية</h3>
+      <p>
+        هنا غادي يحلل سيمو الفكرة ويقترح طريقة باش نشدو انتباه المشاهد.
+      </p>
+    </div>
+
+    <div class="scene">
+      <h3>🎙️ التعليق الصوتي</h3>
+      <p>
+        هنا غادي يتحول السيناريو إلى نص جاهز للتسجيل بالصوت ديالك.
+      </p>
+    </div>
+
+    <div class="scene">
+      <h3>🔥 النهاية</h3>
+      <p>
+        هنا غادي يقترح سيمو نهاية مناسبة للفيديو ودعوة للمشاهد باش يتفاعل.
+      </p>
+    </div>
+  `;
+
+  status.style.display = "block";
+  status.innerText = "✅ صايبنا الهيكل الأولي ديال السيناريو.";
+
+}
+
+function previewMedia() {
+
+  const input = document.getElementById("mediaInput");
+  const preview = document.getElementById("mediaPreview");
+
+  preview.innerHTML = "";
+
+  Array.from(input.files).forEach(file => {
+
+    const url = URL.createObjectURL(file);
+
+    if (file.type.startsWith("image/")) {
+
+      const img = document.createElement("img");
+      img.src = url;
+      preview.appendChild(img);
+
+    } else if (file.type.startsWith("video/")) {
+
+      const video = document.createElement("video");
+      video.src = url;
+      video.controls = true;
+      preview.appendChild(video);
+
+    }
+
+  });
+
+}
+
 </script>
+
 </body>
 </html>
