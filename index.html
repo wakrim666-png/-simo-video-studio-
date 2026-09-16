@@ -2,29 +2,37 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simo Video Studio Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simo Studio</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#0a0a0a;color:#fff;font-family:system-ui;text-align:center;padding:18px}
-h1{color:#22c55e;margin:10px 0}
-.box{background:#161616;border:1px solid #2a2a2a;border-radius:16px;padding:20px;max-width:700px;margin:15px auto}
-video{width:100%;max-width:700px;border-radius:14px;background:#000;margin:15px auto;display:none}
-button{padding:12px 18px;border-radius:10px;border:0;font-weight:700;font-size:15px;margin:6px;cursor:pointer}
-.g{background:#22c55e;color:#000}
-.r{background:#ef4444;color:#fff}
-.b{background:#3b82f6;color:#fff}
-.d{background:#222;color:#fff;border:1px solid #333}
-input[type=file]{color:#fff}
-#status{color:#22c55e;margin-top:10px;font-weight:bold}
+body{margin:0;background:#0a0a0a;color:#fff;font-family:sans-serif;text-align:center;padding:16px}
+h1{color:#22c55e}
+.box{background:#161616;border:1px solid #333;border-radius:14px;padding:16px;max-width:680px;margin:15px auto}
+video{width:100%;max-width:680px;border-radius:12px;background:#000;margin:12px auto;display:none}
+button{padding:12px 18px;border-radius:10px;border:0;font-weight:700;margin:6px}
+.g{background:#22c55e;color:#000}.r{background:#ef4444;color:#fff}.b{background:#3b82f6;color:#fff}
 </style>
 </head>
 <body>
 <h1>🎬 Simo Video Studio</h1>
-<p>صور، سجل، حمّل فيديو وعدّل عليه</p>
-
 <div class="box">
-<input type="file" id="file" accept="video/*">
-<br><br>
+<input type="file" id="file" accept="video/*"><br><br>
 <button class="g" onclick="openCam()">📷 فتح الكاميرا</button>
-<button class="r" id="recBtn" onclick="startRec()">🔴 بدء التس
+<button class="r" id="rec" onclick="startRec()">🔴 تسجيل</button>
+<button class="r" id="stop" onclick="stopRec()" style="display:none">⏹️ إيقاف</button>
+<p id="msg"></p>
+</div>
+<video id="cam" autoplay muted playsinline></video>
+<video id="pre" controls></video>
+<div class="box"><button class="b" onclick="dl()">⬇️ تحميل الفيديو</button></div>
+<script>
+let st, rec, ch=[], blob;
+const cam=document.getElementById('cam'), pre=document.getElementById('pre'), msg=document.getElementById('msg');
+async function openCam(){st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});cam.srcObject=st;cam.style.display='block';msg.textContent='✅ الكاميرا خدامة'}
+function startRec(){if(!st)return alert('حل الكاميرا الأول');ch=[];rec=new MediaRecorder(st);rec.ondataavailable=e=>ch.push(e.data);rec.onstop=()=>{blob=new Blob(ch,{type:'video/webm'});pre.src=URL.createObjectURL(blob);pre.style.display='block';msg.textContent='✅ تسجل'};rec.start();document.getElementById('rec').style.display='none';document.getElementById('stop').style.display='inline-block';msg.textContent='🔴 كيسجل...'}
+function stopRec(){rec.stop();document.getElementById('rec').style.display='inline-block';document.getElementById('stop').style.display='none';}
+document.getElementById('file').onchange=e=>{blob=e.target.files[0];pre.src=URL.createObjectURL(blob);pre.style.display='block';msg.textContent='✅ فيديو محمل'}
+function dl(){let a=document.createElement('a');a.href=pre.src;a.download='simo-'+Date.now()+'.webm';a.click()}
+</script>
+</body>
+</html>
